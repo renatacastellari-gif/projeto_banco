@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import re
+import io
 
 # 🔐 Credenciais do Supabase via Secrets
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
@@ -53,13 +54,15 @@ if st.session_state.logged_in:
 
     # Funções Supabase
     def load_data():
-        response = supabase.table("tabela").select("*").execute()
+        response = supabase.table("impostos").select("*").execute()
         return pd.DataFrame(response.data)
 
-    def save_data(df):
-        supabase.table("tabela").delete().execute()
+    def insert_row(row):
+        supabase.table("impostos").insert(row).execute()
+
+    def update_data(df):
         for row in df.to_dict(orient="records"):
-            supabase.table("tabela").insert(row).execute()
+            supabase.table("impostos").upsert(row).execute()
 
     data = load_data()
 
@@ -123,30 +126,32 @@ if st.session_state.logged_in:
         st.text_input("Total", f"{total_calc:,.2f}", disabled=True)
 
         if st.button("Salvar"):
-            hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
-            new_row = {
-                "codigo_conta": codigo_conta_sel,
-                "nome_imposto": nome_imposto,
-                "data_envio": data_envio.strftime("%d/%m/%Y"),
-                "competencia": competencia,
-                "valor": to_float(valor),
-                "mora": to_float(mora),
-                "tx_expediente": to_float(tx_expediente),
-                "atualizacao": to_float(atualizacao),
-                "multa": to_float(multa),
-                "juros": to_float(juros),
-                "desconto": to_float(desconto),
-                "total": total_calc,
-                "vencimento": vencimento.strftime("%d/%m/%Y"),
-                "texto_lacto": texto_lacto,
-                "data_pagamento": data_pagamento.strftime("%d/%m/%Y"),
-                "banco": banco,
-                "ultima_edicao_por": st.session_state.usuario,
-                "ultima_edicao_em": hora_brasilia
-            }
-            data = pd.concat([data, pd.DataFrame([new_row])], ignore_index=True)
-            save_data(data)
-            st.success("Registro salvo com sucesso!")
+            if not codigo_conta_sel or not nome_imposto or not competencia:
+                st.error("Preencha todos os campos obrigatórios.")
+            else:
+                hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
+                new_row = {
+                    "codigo_conta": codigo_conta_sel,
+                    "nome_imposto": nome_imposto,
+                    "data_envio": data_envio.strftime("%d/%m/%Y"),
+                    "competencia": competencia,
+                    "valor": to_float(valor),
+                    "mora": to_float(mora),
+                    "tx_expediente": to_float(tx_expediente),
+                    "atualizacao": to_float(atualizacao),
+                    "multa": to_float(multa),
+                    "juros": to_float(juros),
+                    "desconto": to_float(desconto),
+                    "total": total_calc,
+                    "vencimento": vencimento.strftime("%d/%m/%Y"),
+                    "texto_lacto": texto_lacto,
+                    "data_pagamento": data_pagamento.strftime("%d/%m/%Y"),
+                    "banco": banco,
+                    "ultima_edicao_por": st.session_state.usuario,
+                    "ultima_edicao_em": hora_brasilia
+                }
+                insert_row(new_row)
+                st.success("Registro salvo com sucesso!")
 
     # Registros
     elif menu == "Registros Cadastrados":
@@ -166,14 +171,14 @@ if st.session_state.logged_in:
             hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
             edited_data["ultima_edicao_por"] = st.session_state.usuario
             edited_data["ultima_edicao_em"] = hora_brasilia
-            save_data(edited_data)
+            update_data(edited_data)
             st.success("Alterações salvas com sucesso!")
 
-        if st.button("Exportar para Excel"):
-            edited_data.to_excel("impostos.xlsx", index=False)
-            st.success("Arquivo Excel gerado com sucesso!")
-
-
-
-
-
+        output = io.BytesIO()
+        edited_data.to_excel(output, index=False)
+        st.download_button(
+            label="📥 Baixar Excel",
+            data=output.getvalue(),
+            file_name="impostos.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
