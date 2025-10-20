@@ -5,7 +5,6 @@ from datetime import datetime
 import pytz
 import re
 import io
-
 # 🔐 Credenciais do Supabase via Secrets
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -54,15 +53,15 @@ if st.session_state.logged_in:
 
     # Funções Supabase
     def load_data():
-        response = supabase.table("impostos").select("*").execute()
+        response = supabase.table("tabela").select("*").execute()
         return pd.DataFrame(response.data)
 
     def insert_row(row):
-        supabase.table("impostos").insert(row).execute()
+        supabase.table("tabela").insert(row).execute()
 
     def update_data(df):
         for row in df.to_dict(orient="records"):
-            supabase.table("impostos").upsert(row).execute()
+            supabase.table("tabela").upsert(row).execute()
 
     data = load_data()
 
