@@ -59,7 +59,7 @@ if st.session_state.logged_in:
     def save_data(df):
         supabase.table("tabela").delete().execute()
         for row in df.to_dict(orient="records"):
-            supabase.table("impostos").insert(row).execute()
+            supabase.table("tabela").insert(row).execute()
 
     data = load_data()
 
@@ -172,6 +172,7 @@ if st.session_state.logged_in:
         if st.button("Exportar para Excel"):
             edited_data.to_excel("impostos.xlsx", index=False)
             st.success("Arquivo Excel gerado com sucesso!")
+
 
 
 
