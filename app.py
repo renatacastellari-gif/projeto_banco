@@ -53,11 +53,11 @@ if st.session_state.logged_in:
 
     # Funções Supabase
     def load_data():
-        response = supabase.table("cadastro_impostos").select("*").execute()
+        response = supabase.table("tabela").select("*").execute()
         return pd.DataFrame(response.data)
 
     def save_data(df):
-        supabase.table("cadastro_impostos").delete().execute()
+        supabase.table("tabela").delete().execute()
         for row in df.to_dict(orient="records"):
             supabase.table("impostos").insert(row).execute()
 
@@ -172,6 +172,7 @@ if st.session_state.logged_in:
         if st.button("Exportar para Excel"):
             edited_data.to_excel("impostos.xlsx", index=False)
             st.success("Arquivo Excel gerado com sucesso!")
+
 
 
 
