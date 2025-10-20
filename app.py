@@ -5,9 +5,9 @@ from datetime import datetime
 import pytz
 import re
 
-# 🔐 Credenciais do Supabase
-SUPABASE_URL = "https://mtyscwhhkoquyvbufrh.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10eXNjY3doaGtvcXV5dmJ1ZnJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5ODU5ODcsImV4cCI6MjA3NjU2MTk4N30.eadd65fM36f7vW-GY79KqvgtjMphlcWGdbaFYPzwigQ"
+# 🔐 Credenciais do Supabase via Secrets
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Configuração da página
@@ -172,3 +172,4 @@ if st.session_state.logged_in:
         if st.button("Exportar para Excel"):
             edited_data.to_excel("impostos.xlsx", index=False)
             st.success("Arquivo Excel gerado com sucesso!")
+``
