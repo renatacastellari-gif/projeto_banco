@@ -172,4 +172,5 @@ if st.session_state.logged_in:
         if st.button("Exportar para Excel"):
             edited_data.to_excel("impostos.xlsx", index=False)
             st.success("Arquivo Excel gerado com sucesso!")
-``
+
+
