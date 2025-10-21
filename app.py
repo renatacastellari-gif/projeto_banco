@@ -108,7 +108,7 @@ if st.session_state.logged_in:
                 new_row = {
                     "codigo_conta": codigo_conta_sel,
                     "nome_imposto": nome_imposto,
-                    "valor": to_float(valor),
+                    "valor": int(to_float(valor)),  # ✅ Corrigido para int
                     "ultima_edicao_por": st.session_state.usuario,
                     "ultima_edicao_em": hora_brasilia
                 }
@@ -142,5 +142,3 @@ if st.session_state.logged_in:
             file_name="impostos.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-
