@@ -58,7 +58,7 @@ if st.session_state.logged_in:
         return pd.DataFrame(response.data)
 
     def insert_row(row):
-        supabase.table("tabela").insert(row).execute()
+        return supabase.table("tabela").insert(row).execute()
 
     def update_data(df):
         for row in df.to_dict(orient="records"):
@@ -88,10 +88,10 @@ if st.session_state.logged_in:
     menu = st.sidebar.selectbox("Menu", ["Cadastrar Imposto", "Registros Cadastrados"])
 
     def validar_numero(valor):
-        return bool(re.match(r'^\d+(,\d{1,2})?$', valor)) or valor == ""
+        return bool(re.match(r'^\d+(,\d{1,2})?$', valor))
 
     def to_float(val):
-        return float(val.replace(",", ".")) if validar_numero(val) and val else 0.0
+        return float(val.replace(",", ".")) if validar_numero(val) else None
 
     # Cadastro
     if menu == "Cadastrar Imposto":
@@ -101,19 +101,23 @@ if st.session_state.logged_in:
         valor = st.text_input("Valor", "")
 
         if st.button("Salvar"):
-            if not codigo_conta_sel or not nome_imposto or not valor:
-                st.error("Preencha todos os campos obrigatórios.")
+            valor_convertido = to_float(valor)
+            if not codigo_conta_sel or not nome_imposto or valor_convertido is None:
+                st.error("Preencha todos os campos obrigatórios com valores válidos.")
             else:
                 hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
                 new_row = {
                     "codigo_conta": codigo_conta_sel,
                     "nome_imposto": nome_imposto,
-                    "valor": int(to_float(valor)),  # ✅ Corrigido para int
+                    "valor": int(valor_convertido),  # ✅ Garantindo int
                     "ultima_edicao_por": st.session_state.usuario,
                     "ultima_edicao_em": hora_brasilia
                 }
-                insert_row(new_row)
-                st.success("Registro salvo com sucesso!")
+                try:
+                    insert_row(new_row)
+                    st.success("Registro salvo com sucesso!")
+                except Exception as e:
+                    st.error(f"Erro ao salvar no banco: {e}")
 
     # Registros
     elif menu == "Registros Cadastrados":
