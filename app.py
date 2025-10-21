@@ -101,14 +101,7 @@ if st.session_state.logged_in:
         st.title("Cadastro de Imposto")
         codigo_conta_sel = st.selectbox("Código do Imposto / Conta", [""] + list(codigo_conta.keys()))
         nome_imposto = st.selectbox("Nome do Imposto", [""] + nomes_impostos)
-        data_envio = st.date_input("Data de Envio", format="DD/MM/YYYY")
-        competencia = st.selectbox("Competência", [""] + competencias)
         valor = st.text_input("Valor", "")
-
-        vencimento = st.date_input("Vencimento", format="DD/MM/YYYY")
-        texto_lacto = st.text_input("Texto Lacto", "")
-        data_pagamento = st.date_input("Data de Pagamento", format="DD/MM/YYYY")
-        banco = st.selectbox("Banco", [""] + bancos_filtrados)
 
         if st.button("Salvar"):
             if not codigo_conta_sel or not nome_imposto or not competencia:
@@ -118,13 +111,7 @@ if st.session_state.logged_in:
                 new_row = {
                     "codigo_conta": codigo_conta_sel,
                     "nome_imposto": nome_imposto,
-                    "data_envio": data_envio.strftime("%d/%m/%Y"),
-                    "competencia": competencia,
                     "valor": to_float(valor),
-                    "vencimento": vencimento.strftime("%d/%m/%Y"),
-                    "texto_lacto": texto_lacto,
-                    "data_pagamento": data_pagamento.strftime("%d/%m/%Y"),
-                    "banco": banco,
                     "ultima_edicao_por": st.session_state.usuario,
                     "ultima_edicao_em": hora_brasilia
                 }
@@ -161,3 +148,4 @@ if st.session_state.logged_in:
             file_name="impostos.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
