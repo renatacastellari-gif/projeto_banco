@@ -85,9 +85,6 @@ if st.session_state.logged_in:
         "PARCELAMENTO"
     ]
 
-    competencias = [f"{str(m).zfill(2)}/2025" for m in range(1, 13)]
-    bancos_filtrados = ["Banco do Brasil", "Bradesco", "Outros", "Itaú"]
-
     menu = st.sidebar.selectbox("Menu", ["Cadastrar Imposto", "Registros Cadastrados"])
 
     def validar_numero(valor):
@@ -104,7 +101,7 @@ if st.session_state.logged_in:
         valor = st.text_input("Valor", "")
 
         if st.button("Salvar"):
-            if not codigo_conta_sel or not nome_imposto or not competencia:
+            if not codigo_conta_sel or not nome_imposto or not valor:
                 st.error("Preencha todos os campos obrigatórios.")
             else:
                 hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
@@ -122,13 +119,10 @@ if st.session_state.logged_in:
     elif menu == "Registros Cadastrados":
         st.title("Registros Cadastrados")
         filtro_conta = st.selectbox("Filtrar por Código/Conta", ["Todos"] + list(codigo_conta.keys()))
-        filtro_competencia = st.selectbox("Filtrar por Competência", ["Todos"] + competencias)
 
         df_filtrado = data.copy()
         if filtro_conta != "Todos":
             df_filtrado = df_filtrado[df_filtrado["codigo_conta"] == filtro_conta]
-        if filtro_competencia != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["competencia"] == filtro_competencia]
 
         colunas_visiveis = ["codigo_conta", "nome_imposto", "valor"]
         edited_data = st.experimental_data_editor(df_filtrado[colunas_visiveis], use_container_width=True, num_rows="dynamic")
@@ -148,4 +142,4 @@ if st.session_state.logged_in:
             file_name="impostos.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
+``
