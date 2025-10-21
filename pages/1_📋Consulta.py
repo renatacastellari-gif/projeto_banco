@@ -21,16 +21,16 @@ col1, col2 = st.columns(2)
 codigo_opcoes = sorted(dados['codigo_conta'].dropna().unique())
 codigo_filtro = col1.selectbox("Filtrar por Código/Conta", ["Todos"] + list(codigo_opcoes))
 
-# Filtro por competência
-competencia_opcoes = sorted(dados['competencia'].dropna().unique())
-competencia_filtro = col2.selectbox("Filtrar por Competência", ["Todos"] + list(competencia_opcoes))
+# Filtro por nome_imposto
+imposto_opcoes = sorted(dados['nome_imposto'].dropna().unique())
+imposto_filtro = col2.selectbox("Filtrar por Nome do Imposto", ["Todos"] + list(imposto_opcoes))
 
 # Aplicar filtros
 dados_filtrados = dados.copy()
 if codigo_filtro != "Todos":
     dados_filtrados = dados_filtrados[dados_filtrados['codigo_conta'] == codigo_filtro]
-if competencia_filtro != "Todos":
-    dados_filtrados = dados_filtrados[dados_filtrados['competencia'] == competencia_filtro]
+if imposto_filtro != "Todos":
+    dados_filtrados = dados_filtrados[dados_filtrados['nome_imposto'] == imposto_filtro]
 
 # Exibir tabela com largura total e altura maior
 st.dataframe(dados_filtrados, use_container_width=True, height=600)
