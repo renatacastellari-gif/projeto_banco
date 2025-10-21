@@ -5,6 +5,7 @@ from datetime import datetime
 import pytz
 import re
 import io
+
 # 🔐 Credenciais do Supabase via Secrets
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
@@ -102,27 +103,12 @@ if st.session_state.logged_in:
         nome_imposto = st.selectbox("Nome do Imposto", [""] + nomes_impostos)
         data_envio = st.date_input("Data de Envio", format="DD/MM/YYYY")
         competencia = st.selectbox("Competência", [""] + competencias)
-
         valor = st.text_input("Valor", "")
-        mora = st.text_input("Mora", "")
-        tx_expediente = st.text_input("Tx. Expediente", "")
-        atualizacao = st.text_input("Atualização", "")
-        multa = st.text_input("Multa", "")
-        juros = st.text_input("Juros", "")
-        desconto = st.text_input("Desconto", "")
 
         vencimento = st.date_input("Vencimento", format="DD/MM/YYYY")
         texto_lacto = st.text_input("Texto Lacto", "")
         data_pagamento = st.date_input("Data de Pagamento", format="DD/MM/YYYY")
         banco = st.selectbox("Banco", [""] + bancos_filtrados)
-
-        total_calc = (
-            to_float(valor) + to_float(mora) + to_float(tx_expediente) +
-            to_float(atualizacao) + to_float(multa) + to_float(juros) -
-            to_float(desconto)
-        )
-
-        st.text_input("Total", f"{total_calc:,.2f}", disabled=True)
 
         if st.button("Salvar"):
             if not codigo_conta_sel or not nome_imposto or not competencia:
@@ -135,13 +121,6 @@ if st.session_state.logged_in:
                     "data_envio": data_envio.strftime("%d/%m/%Y"),
                     "competencia": competencia,
                     "valor": to_float(valor),
-                    "mora": to_float(mora),
-                    "tx_expediente": to_float(tx_expediente),
-                    "atualizacao": to_float(atualizacao),
-                    "multa": to_float(multa),
-                    "juros": to_float(juros),
-                    "desconto": to_float(desconto),
-                    "total": total_calc,
                     "vencimento": vencimento.strftime("%d/%m/%Y"),
                     "texto_lacto": texto_lacto,
                     "data_pagamento": data_pagamento.strftime("%d/%m/%Y"),
@@ -164,7 +143,8 @@ if st.session_state.logged_in:
         if filtro_competencia != "Todos":
             df_filtrado = df_filtrado[df_filtrado["competencia"] == filtro_competencia]
 
-        edited_data = st.experimental_data_editor(df_filtrado, use_container_width=True, num_rows="dynamic")
+        colunas_visiveis = ["codigo_conta", "nome_imposto", "valor"]
+        edited_data = st.experimental_data_editor(df_filtrado[colunas_visiveis], use_container_width=True, num_rows="dynamic")
 
         if st.button("Salvar Alterações"):
             hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
