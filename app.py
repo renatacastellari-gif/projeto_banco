@@ -105,11 +105,12 @@ if st.session_state.logged_in:
             if not codigo_conta_sel or not nome_imposto or valor_convertido is None:
                 st.error("Preencha todos os campos obrigatórios com valores válidos.")
             else:
-                hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
+                # ✅ Corrigido para formato ISO compatível com PostgreSQL
+                hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
                 new_row = {
                     "codigo_conta": codigo_conta_sel,
                     "nome_imposto": nome_imposto,
-                    "valor": int(valor_convertido),  # ✅ Garantindo int
+                    "valor": int(valor_convertido),
                     "ultima_edicao_por": st.session_state.usuario,
                     "ultima_edicao_em": hora_brasilia
                 }
@@ -132,7 +133,7 @@ if st.session_state.logged_in:
         edited_data = st.experimental_data_editor(df_filtrado[colunas_visiveis], use_container_width=True, num_rows="dynamic")
 
         if st.button("Salvar Alterações"):
-            hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M:%S")
+            hora_brasilia = datetime.now(pytz.timezone("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
             edited_data["ultima_edicao_por"] = st.session_state.usuario
             edited_data["ultima_edicao_em"] = hora_brasilia
             update_data(edited_data)
